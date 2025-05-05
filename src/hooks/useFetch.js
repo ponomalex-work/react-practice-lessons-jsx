@@ -1,12 +1,12 @@
 // useFetch.js
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useFetch(url) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -22,7 +22,7 @@ export function useFetch(url) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchData();
@@ -31,7 +31,7 @@ export function useFetch(url) {
     return () => {
       console.log("🧹 useFetch cleanup (componentWillUnmount)");
     };
-  }, [url]);
+  }, [url, fetchData]);
 
   return { data, loading, error, refetch: fetchData };
 }
