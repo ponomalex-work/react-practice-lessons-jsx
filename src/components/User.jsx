@@ -3,7 +3,7 @@ import UserDetails from "./UserDetails";
 
 export default function User({ userId }) {
   const { users } = useUsers();
-  console.log(users);
+  // console.log(users);
 
   const user = users.find((user) => user.id === userId);
 

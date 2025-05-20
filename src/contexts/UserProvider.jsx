@@ -10,7 +10,7 @@ export const UserProvider = ({ children }) => {
     error,
   } = useFetch("https://jsonplaceholder.typicode.com/users?_limit=10");
 
-  console.log(users);
+  // console.log(users);
 
   return (
     <UserContext.Provider value={{ users, loading, error }}>

@@ -5,7 +5,7 @@ import { useUsers } from "../contexts";
 
 export default function UserList() {
   const { users, loading, error } = useUsers(); // Використовуємо наш хук для доступу до контексту
-  console.log(users);
+  // console.log(users);
 
   return (
     <div>
