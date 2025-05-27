@@ -4,4 +4,4 @@ import React, { createContext, useContext } from "react";
 export const UserContext = createContext();
 
 // Споживач контексту
-export const useUsers = () => useContext(UserContext);
+export const useUsersq = () => useContext(UserContext);

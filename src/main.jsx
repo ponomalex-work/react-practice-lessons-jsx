@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.jsx";
 import { UserProvider } from "./contexts/UserProvider.jsx";
 import { ThemeProvider } from "./contexts/ThemeProvider.jsx";
+import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>

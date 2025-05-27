@@ -1,101 +1,120 @@
-import { useCallback, useMemo, useState } from "react";
-import { ThemeDisplay } from "./components/ThemeDisplay";
+// == Unique keys in lists ==
+// Use stable and unique `key` props in list rendering
 
-import s from "./App.module.css";
-import { useTheme } from "./contexts/theme-context";
-import TaskList from "./components/TaskList";
+// == Memoization to prevent unnecessary renders ==
+// useCallback,
+// useMemo,
+// React.memo,
+
+// == Code splitting and lazy loading ==
+// React.lazy + Suspense
+// dynamic import() (EXAMPLE: LazyLoaderOnClick.jsx)
+
+// == Performance profiling tools ==
+// use Profiler
+// React DevTools → Profiler tab
+
+// == List virtualization and lazy loading ==
+// react-window
+// react-virtual
+// react-infinite-scroll-component
+
+// == Style optimization ==
+// Avoid inline styles and heavy CSS
+
+// == Proper effect cleanup ==
+// Always clean up in useEffect to avoid memory leaks
+// Keep dependency arrays accurate
+
+import React, {
+  Profiler,
+  Suspense,
+  // useCallback,
+  // useMemo,
+  // useState,
+} from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+// import { ThemeDisplay } from "./components/ThemeDisplay";
+
+// import s from "./App.module.css";
+// import { useTheme } from "./contexts/theme-context";
+// import TaskList from "./components/TaskList";
 // import { MemoizedTimer3, Timer3 } from "./components/Timer/Timer";
 
-const generateTasks = () => {
-  const tasks = [];
+const renderStats = {};
+function onRenderCallback(
+  id,
+  phase,
+  actualDuration,
+  baseDuration,
+  startTime,
+  commitTime
+) {
+  console.log(`Profiler [${id}] - ${phase}:`, actualDuration, "ms");
 
-  for (let i = 0; i < 1000; i++) {
-    tasks.push({
-      id: i,
-      title: `Task ${i}`,
-      done: Math.random() > 0.5,
-    });
-  }
+  // 2nd variant
+  // if (!renderStats[id]) {
+  //   renderStats[id] = {
+  //     count: 0,
+  //     totalActualTime: 0,
+  //     totalBaseTime: 0,
+  //   };
+  // }
 
-  return tasks;
-};
+  // renderStats[id].count += 1;
+  // renderStats[id].totalActualTime += actualDuration;
+  // renderStats[id].totalBaseTime += baseDuration;
 
-function App() {
-  const [tasks, setTasks] = useState(generateTasks);
-  const [_, rerender] = useState(0);
-  const [filter, setFilter] = useState("all");
-  const [highlightedTaskId, setHighlightedTaskId] = useState(null);
-  const { theme } = useTheme();
-
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
-  };
-
-  const addTask = () => {
-    setTasks((prev) => [
-      ...prev,
-      {
-        id: prev.length,
-        title: `Task ${prev.length}`,
-        done: false,
-      },
-    ]);
-  };
-
-  console.log("APP rendered");
-
-  const filteredTasks = () => {
-    console.log("Filtering ... ");
-
-    switch (filter) {
-      case "done":
-        return tasks.filter((task) => task.done);
-      case "pending":
-        return tasks.filter((task) => !task.done);
-      default:
-        return tasks;
-    }
-  };
-
-  // const tasksToRender = filteredTasks();
-  const tasksToRender = useMemo(filteredTasks, [filter, tasks]);
-
-  // const onTaskClick = (id) => {
-  //   setHighlightedTaskId(id);
-  // };
-
-  const onTaskClick = useCallback((id) => {
-    setHighlightedTaskId(id);
-  }, []);
-
-  return (
-    <div
-      style={{ padding: "40px" }}
-      className={theme === "dark" ? s.dark : s.light}
-    >
-      <ThemeDisplay />
-      <h2>Task List</h2>
-      <button onClick={() => rerender((prev) => prev + 1)}> render</button>
-      <button onClick={addTask}> add task</button>
-      <h3>Highlighted Task ID: {highlightedTaskId}</h3>
-      <label>
-        Filter:
-        <select value={filter} onChange={handleFilterChange}>
-          <option value="all">All</option>
-          <option value="done">Done</option>
-          <option value="pending">Pending</option>
-        </select>
-      </label>
-      {/* <ul>
-        {tasksToRender.map((task) => (
-          <li key={task.id}>
-            {task.title} - {task.done ? "Done" : "Pending"}
-          </li>
-        ))}
-      </ul> */}
-      <TaskList tasks={tasksToRender} onClick={onTaskClick} />
-    </div>
-  );
+  // console.clear();
+  // console.table(
+  //   Object.entries(renderStats).map(([key, val]) => ({
+  //     Component: key,
+  //     Renders: val.count,
+  //     "Total actual (ms)": val.totalActualTime.toFixed(2),
+  //     "Total base (ms)": val.totalBaseTime.toFixed(2),
+  //     "Avg per render (ms)": (val.totalActualTime / val.count).toFixed(2),
+  //   }))
+  // );
 }
 
-export default App;
+// import Home from "./components/005-performance/Home";
+// import HeavyPage from "./components/005-performance/HeavyPage";
+import { LazyLoaderOnClick } from "./components/005-performance/LazyLoaderOnClick";
+const Home = React.lazy(() => import("./components/005-performance/Home"));
+const HeavyPage = React.lazy(() =>
+  import("./components/005-performance/HeavyPage")
+);
+
+export default function App() {
+  return (
+    <Router>
+      <nav className="p-4 bg-gray-100 flex gap-4">
+        <Link to="/">Home</Link>
+        <Link to="/heavy">Heavy Page</Link>
+      </nav>
+      <Suspense fallback={<div className="p-4">Loading...</div>}>
+        <Profiler id="Routes" onRender={onRenderCallback}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                // <Profiler id="Home" onRender={onRenderCallback}>
+                <Home />
+                // </Profiler>
+              }
+            />
+            <Route
+              path="/heavy"
+              element={
+                // <Profiler id="HeavyPage" onRender={onRenderCallback}>
+                <HeavyPage />
+                // </Profiler>
+              }
+            />
+          </Routes>
+          <LazyLoaderOnClick />
+        </Profiler>
+      </Suspense>
+    </Router>
+  );
+}
